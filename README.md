@@ -1,10 +1,10 @@
-# UBS Wheel Spinner
+#  Wheel Spinner
 
 A modern, interactive wheel spinner application styled with UBS branding. This web application allows users to create a customizable spinning wheel with their own choices.
 
 ## Features
 
-- **Modern UBS-branded UI**: Clean, responsive design using UBS brand colors and styling
+- **Modern UI**: Clean, responsive design using UBS brand colors and styling
 - **Customizable Choices**: Add choices via text input or upload a text file
 - **Dynamic Choice Management**: Enable/disable choices with checkboxes
 - **Fair Spinning Algorithm**: Ensures random and fair selection
