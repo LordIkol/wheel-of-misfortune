@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Misfortune</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div></div> <!-- Empty first column for grid layout -->
+            <h1 class="title-flashy">Wheel of Misfortune</h1>
+            <div class="header-buttons">
+                <button id="toggle-options-btn"><i class="fas fa-sliders-h"></i> Toggle Options</button>
+                <button id="settings-btn"><i class="fas fa-cog"></i> Settings</button>
+            </div>
+        </header>
+
+        <main class="options-hidden settings-hidden">
+            <div class="choices-list-container">
+                <h2>Active Choices</h2>
+                <div id="choices-list" class="choices-list">
+                    <!-- Choices with checkboxes will be added here dynamically -->
+                </div>
+            </div>
+            
+            <div class="wheel-container">
+                <div class="wheel-wrapper">
+                    <div class="wheel" id="wheel">
+                        <!-- Segments will be added dynamically -->
+                    </div>
+                    <button id="spin-btn" class="spin-btn-circle">SPIN!</button>
+                    <div class="winner-indicator">
+                        <div class="indicator-arrow"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="options-panel hidden">
+                <div class="panel-header">
+                    <h2>Options</h2>
+                </div>
+                <div class="input-section">
+                    <label for="choices-textarea">Enter choices (one per line):</label>
+                    <textarea id="choices-textarea" rows="10" placeholder="Enter your choices here..."></textarea>
+                </div>
+                <div class="file-upload">
+                    <label for="file-input">Or load from a text file:</label>
+                    <input type="file" id="file-input" accept=".txt">
+                </div>
+                <div class="action-buttons">
+                    <button id="update-wheel-btn" class="secondary-btn">Update Wheel</button>
+                    <button id="clear-btn" class="secondary-btn">Clear All</button>
+                </div>
+            </div>
+            
+            <div class="settings-panel hidden">
+                <div class="panel-header">
+                    <h2>Settings</h2>
+                </div>
+                <div class="settings-content">
+                    <div class="setting-item">
+                        <label for="spin-duration">Spin Duration (seconds):</label>
+                        <input type="range" id="spin-duration" min="2" max="30" step="1" value="10">
+                        <span id="spin-duration-value">10</span>
+                    </div>
+                    <div class="setting-item">
+                        <label for="initial-speed">Initial Speed:</label>
+                        <input type="range" id="initial-speed" min="1" max="50" step="1" value="10">
+                        <span id="initial-speed-value">10</span>
+                    </div>
+                    
+                    <h3 class="settings-section-title">Appearance</h3>
+                    
+                    <div class="setting-item">
+                        <label for="text-size">Text Size (px):</label>
+                        <input type="range" id="text-size" min="10" max="24" step="1" value="14">
+                        <span id="text-size-value">14</span>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label for="text-color">Text Color:</label>
+                        <input type="color" id="text-color" value="#FFFFFF">
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label>Segment Colors:</label>
+                        <div class="color-picker-group">
+                            <div class="color-picker-item">
+                                <input type="color" id="segment-color-1" value="#000000">
+                                <span>Color 1</span>
+                            </div>
+                            <div class="color-picker-item">
+                                <input type="color" id="segment-color-2" value="#7F7F7F">
+                                <span>Color 2</span>
+                            </div>
+                            <div class="color-picker-item">
+                                <input type="color" id="segment-color-3" value="#333333">
+                                <span>Color 3</span>
+                            </div>
+                            <div class="color-picker-item">
+                                <input type="color" id="segment-color-4" value="#999999">
+                                <span>Color 4</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/wheel.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
