@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const textColorInput = document.getElementById('text-color');
     const segmentColor1Input = document.getElementById('segment-color-1');
     const segmentColor2Input = document.getElementById('segment-color-2');
+    const lowPerformanceModeCheckbox = document.getElementById('low-performance-mode');
     const segmentColor3Input = document.getElementById('segment-color-3');
     const segmentColor4Input = document.getElementById('segment-color-4');
 
@@ -41,7 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
             '#7F7F7F',
             '#333333',
             '#999999'
-        ]
+        ],
+        lowPerformanceMode: false,
+        useHardwareAcceleration: true
     };
     
     // Load settings from session storage or use defaults
@@ -54,6 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
         textSize: savedSettings.textSize,
         textColor: savedSettings.textColor,
         colors: savedSettings.colors,
+        lowPerformanceMode: savedSettings.lowPerformanceMode || false,
+        useHardwareAcceleration: savedSettings.useHardwareAcceleration !== undefined ? savedSettings.useHardwareAcceleration : true,
         segments: []
     });
 
@@ -317,31 +322,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateTextSizeDisplay() {
         textSizeValue.textContent = textSizeInput.value;
     }
-
+    
     /**
      * Update wheel settings
      */
     function updateSettings() {
-        const newSettings = {
-            spinDuration: parseFloat(spinDurationInput.value),
-            initialSpeed: parseFloat(initialSpeedInput.value),
-            textSize: parseFloat(textSizeInput.value),
+        const settings = {
+            spinDuration: parseInt(spinDurationInput.value),
+            initialSpeed: parseInt(initialSpeedInput.value),
+            textSize: parseInt(textSizeInput.value),
             textColor: textColorInput.value,
             colors: [
                 segmentColor1Input.value,
                 segmentColor2Input.value,
                 segmentColor3Input.value,
                 segmentColor4Input.value
-            ]
+            ],
+            lowPerformanceMode: lowPerformanceModeCheckbox ? lowPerformanceModeCheckbox.checked : false,
+            useHardwareAcceleration: true
         };
         
+        wheel.updateSettings(settings);
+        saveSettings(settings);
+        
         // Update wheel with new settings
-        wheel.updateSettings(newSettings);
-        
-        // Save settings to session storage
-        saveSettings(newSettings);
-        
-        // Update the wheel to apply the new settings
         updateWheelSegments();
     }
     

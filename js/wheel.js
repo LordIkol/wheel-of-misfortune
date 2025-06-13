@@ -17,7 +17,9 @@ class Wheel {
                 '#999999', // Light Gray
             ],
             textSize: 14, // font size in pixels
-            textColor: '#FFFFFF' // text color
+            textColor: '#FFFFFF', // text color
+            lowPerformanceMode: false, // performance optimization for Citrix/remote sessions
+            useHardwareAcceleration: true // use hardware acceleration for animations
         }, options);
 
         this.isSpinning = false;
@@ -177,6 +179,11 @@ class Wheel {
             this.winningSegment = null;
         }
         
+        // Apply hardware acceleration if enabled
+        if (this.options.useHardwareAcceleration) {
+            this.element.style.willChange = 'transform';
+        }
+        
         // Calculate a random final position
         // Use half the initialSpeed as the number of rotations (360 degrees per rotation)
         const rotations = Math.max(2, Math.floor(this.options.initialSpeed / 2)); // Ensure minimum 2 rotations
@@ -187,8 +194,21 @@ class Wheel {
         const startTime = performance.now();
         const duration = this.options.spinDuration * 1000; // convert to ms
         
+        // Optimize animation for low performance mode
+        const isLowPerformanceMode = this.options.lowPerformanceMode;
+        const frameSkip = isLowPerformanceMode ? 2 : 1; // Skip frames in low performance mode
+        let frameCount = 0;
+        
         return new Promise(resolve => {
             const animate = (currentTime) => {
+                frameCount++;
+                
+                // Skip frames in low performance mode
+                if (isLowPerformanceMode && frameCount % frameSkip !== 0) {
+                    requestAnimationFrame(animate);
+                    return;
+                }
+                
                 const elapsed = currentTime - startTime;
                 
                 if (elapsed >= duration) {
@@ -196,6 +216,11 @@ class Wheel {
                     this.currentRotation = targetRotation;
                     this.element.style.transform = `rotate(${this.currentRotation}deg)`;
                     this.isSpinning = false;
+                    
+                    // Reset will-change to free up resources
+                    if (this.options.useHardwareAcceleration) {
+                        this.element.style.willChange = 'auto';
+                    }
                     
                     // Determine winner
                     const winner = this.determineWinner();
@@ -211,8 +236,10 @@ class Wheel {
                 const currentRotation = this.currentRotation + 
                     (targetRotation - this.currentRotation) * easing;
                 
-                // Apply rotation
-                this.element.style.transform = `rotate(${currentRotation}deg)`;
+                // Apply rotation - use translateZ(0) to force GPU acceleration
+                this.element.style.transform = this.options.useHardwareAcceleration ?
+                    `rotate(${currentRotation}deg) translateZ(0)` :
+                    `rotate(${currentRotation}deg)`;
                 
                 // Continue animation
                 requestAnimationFrame(animate);
@@ -342,8 +369,12 @@ class Wheel {
 
     /**
      * Trigger confetti animation from the center of the wheel
+     * Optimized for performance in low-resource environments like Citrix
      */
     triggerConfetti() {
+        // Check if we're in a low-performance environment (can be set via settings)
+        const isLowPerformanceMode = this.options.lowPerformanceMode || false;
+        
         // Get the wheel element's position and dimensions
         const wheelRect = this.element.getBoundingClientRect();
         const centerX = wheelRect.left + (wheelRect.width / 2);
@@ -358,9 +389,14 @@ class Wheel {
         // Confetti colors matching the application theme
         const colors = ['#EC0016', '#000000', '#333333', '#7F7F7F', '#999999', '#FFFFFF'];
         
-        // First explosion - big initial burst
+        // Adjust particle counts based on performance mode
+        const particleCounts = isLowPerformanceMode ? 
+            [60, 40, 50, 0, 0] : // Low performance mode (fewer particles, fewer explosions)
+            [200, 150, 180, 160, 250]; // Normal mode
+        
+        // First explosion - initial burst
         confetti({
-            particleCount: 200,
+            particleCount: particleCounts[0],
             spread: 90,
             origin: origin,
             colors: colors,
@@ -368,67 +404,81 @@ class Wheel {
             startVelocity: 40,
             gravity: 1.2,
             shapes: ['circle', 'square'],
-            scalar: 2.0
+            scalar: isLowPerformanceMode ? 1.5 : 2.0,
+            disableForReducedMotion: true // Respect reduced motion settings
         });
         
-        // Second explosion - 600ms later
-        setTimeout(() => {
-            confetti({
-                particleCount: 150,
-                spread: 120,
-                origin: origin,
-                colors: colors,
-                zIndex: 1000,
-                startVelocity: 35,
-                gravity: 0.9,
-                shapes: ['star', 'circle'],
-                scalar: 1.8
-            });
-        }, 600);
+        // Skip additional explosions if in low performance mode
+        if (particleCounts[1] > 0) {
+            // Second explosion - 600ms later
+            setTimeout(() => {
+                confetti({
+                    particleCount: particleCounts[1],
+                    spread: 120,
+                    origin: origin,
+                    colors: colors,
+                    zIndex: 1000,
+                    startVelocity: 35,
+                    gravity: 0.9,
+                    shapes: ['circle'],
+                    scalar: isLowPerformanceMode ? 1.3 : 1.8,
+                    disableForReducedMotion: true
+                });
+            }, 600);
+        }
         
-        // Third explosion - 1200ms later
-        setTimeout(() => {
-            confetti({
-                particleCount: 180,
-                spread: 100,
-                origin: origin,
-                colors: ['#EC0016', '#FFFFFF', '#000000'],
-                zIndex: 1000,
-                startVelocity: 45,
-                gravity: 1.0,
-                shapes: ['square'],
-                scalar: 2.2
-            });
-        }, 1200);
+        if (particleCounts[2] > 0) {
+            // Third explosion - 1200ms later
+            setTimeout(() => {
+                confetti({
+                    particleCount: particleCounts[2],
+                    spread: 100,
+                    origin: origin,
+                    colors: ['#EC0016', '#FFFFFF', '#000000'],
+                    zIndex: 1000,
+                    startVelocity: 45,
+                    gravity: 1.0,
+                    shapes: ['square'],
+                    scalar: isLowPerformanceMode ? 1.7 : 2.2,
+                    disableForReducedMotion: true
+                });
+            }, 1200);
+        }
         
-        // Fourth explosion - 1800ms later
-        setTimeout(() => {
-            confetti({
-                particleCount: 160,
-                spread: 130,
-                origin: origin,
-                colors: colors,
-                zIndex: 1000,
-                startVelocity: 38,
-                gravity: 0.8,
-                shapes: ['circle'],
-                scalar: 2.0
-            });
-        }, 1800);
+        if (particleCounts[3] > 0) {
+            // Fourth explosion - 1800ms later
+            setTimeout(() => {
+                confetti({
+                    particleCount: particleCounts[3],
+                    spread: 130,
+                    origin: origin,
+                    colors: colors,
+                    zIndex: 1000,
+                    startVelocity: 38,
+                    gravity: 0.8,
+                    shapes: ['circle'],
+                    scalar: 2.0,
+                    disableForReducedMotion: true
+                });
+            }, 1800);
+        }
         
-        // Fifth explosion - grand finale at 2400ms
-        setTimeout(() => {
-            confetti({
-                particleCount: 250,
-                spread: 140,
-                origin: origin,
-                colors: colors,
-                zIndex: 1000,
-                startVelocity: 50,
-                gravity: 0.7,
-                shapes: ['star', 'circle', 'square'],
-                scalar: 2.5
-            });
-        }, 2400);
+        if (particleCounts[4] > 0) {
+            // Fifth explosion - grand finale at 2400ms
+            setTimeout(() => {
+                confetti({
+                    particleCount: particleCounts[4],
+                    spread: 140,
+                    origin: origin,
+                    colors: colors,
+                    zIndex: 1000,
+                    startVelocity: 50,
+                    gravity: 0.7,
+                    shapes: ['star', 'circle', 'square'],
+                    scalar: 2.5,
+                    disableForReducedMotion: true
+                });
+            }, 2400);
+        }
     }
 }

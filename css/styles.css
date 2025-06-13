@@ -426,6 +426,30 @@ textarea {
     margin-bottom: 8px;
 }
 
+.checkbox-setting {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.checkbox-setting input[type="checkbox"] {
+    margin-right: 10px;
+    margin-top: 4px;
+}
+
+.checkbox-setting label {
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.setting-description {
+    margin-top: 5px;
+    margin-left: 25px;
+    font-size: 13px;
+    color: var(--ubs-gray);
+    line-height: 1.4;
+}
+
 .setting-item input[type="range"] {
     width: 100%;
     margin-bottom: 5px;
